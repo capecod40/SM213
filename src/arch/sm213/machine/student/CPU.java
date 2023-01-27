@@ -83,19 +83,43 @@ public class CPU extends AbstractSM213CPU {
         reg.set(insOp0.get(), insOpExt.get());
         break;
       case 0x1: // ld o(rs), rd .......... 1psd  (p = o / 4)
-        UnsignedByte data[] = mem.read(reg.get(insOp1.get()) + 4 * insOp0.get(), 8);
-        int result = getMainMemory().bytesToInteger(data[0].byteValue(), data[1].byteValue(), data[2].byteValue(), data[3].byteValue());
-        reg.set(insOp2.get(), result);
-        break;
+      {
+          UnsignedByte data[] = mem.read(reg.get(insOp1.get()) + 4 * insOp0.get(), 4);
+          int result = getMainMemory().bytesToInteger(data[0].byteValue(), data[1].byteValue(), data[2].byteValue(), data[3].byteValue());
+          reg.set(insOp2.get(), result);
+          break;
+      }
       case 0x2: // ld (rs, ri, 4), rd .... 2sid
-        // TODO
-        break;
+      {
+          UnsignedByte data[] = mem.read(reg.get(insOp0.get()) + 4 * reg.get(insOp1.get()), 4);
+          int result = getMainMemory().bytesToInteger(data[0].byteValue(), data[1].byteValue(), data[2].byteValue(), data[3].byteValue());
+          reg.set(insOp2.get(), result);
+          break;
+      }
       case 0x3: // st rs, o(rd) .......... 3spd  (p = o / 4)
-        // TODO
-        break;
+      {
+          int data = reg.get(insOp0.get());
+          byte dataArray[] = getMainMemory().integerToBytes(data);
+          UnsignedByte result[] = new UnsignedByte[4];
+          for (int i = 0; i < 4; i++) {
+              result[i] = new UnsignedByte(dataArray[i]);
+          }
+          int dest = reg.get(insOp2.get()) + 4 * insOp1.get();
+          mem.write(dest, result);
+          break;
+      }
       case 0x4: // st rs, (rd, ri, 4) .... 4sdi
-        // TODO
-        break;
+      {
+          int data = reg.get(insOp0.get());
+          byte dataArray[] = getMainMemory().integerToBytes(data);
+          UnsignedByte result[] = new UnsignedByte[4];
+          for (int i = 0; i < 4; i++) {
+              result[i] = new UnsignedByte(dataArray[i]);
+          }
+          int dest = reg.get(insOp1.get()) + 4 * reg.get(insOp2.get());
+          mem.write(dest, result);
+          break;
+      }
       case 0x6: // ALU ................... 6-sd
 	switch (insOp0.get()) {
 	  case 0x0: // mov rs, rd ........ 60sd
