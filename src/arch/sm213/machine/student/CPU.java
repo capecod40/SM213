@@ -80,8 +80,10 @@ public class CPU extends AbstractSM213CPU {
   {
     switch (insOpCode.get()) {
       case 0x0: // ld $i, d .............. 0d-- iiii iiii
-        reg.set(insOp0.get(), insOpExt.get());
-        break;
+      {
+          reg.set(insOp0.get(), insOpExt.get());
+          break;
+      }
       case 0x1: // ld o(rs), rd .......... 1psd  (p = o / 4)
       {
           UnsignedByte data[] = mem.read(reg.get(insOp1.get()) + 4 * insOp0.get(), 4);
@@ -123,36 +125,61 @@ public class CPU extends AbstractSM213CPU {
       case 0x6: // ALU ................... 6-sd
 	switch (insOp0.get()) {
 	  case 0x0: // mov rs, rd ........ 60sd
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), reg.get(insOp1.get()));
+          break;
+      }
 	  case 0x1: // add rs, rd ........ 61sd
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), reg.get(insOp2.get()) + reg.get(insOp1.get()));
+          break;
+      }
 	  case 0x2: // and rs, rd ........ 62sd
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), reg.get(insOp2.get()) & reg.get(insOp1.get()));
+          break;
+      }
 	  case 0x3: // inc rr ............ 63-r
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), reg.get(insOp2.get()) + 1);
+          break;
+      }
 	  case 0x4: // inca rr ........... 64-r
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), reg.get(insOp2.get()) + 4);
+          break;
+      }
 	  case 0x5: // dec rr ............ 65-r
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), reg.get(insOp2.get()) - 1);
+          break;
+      }
 	  case 0x6: // deca rr ........... 66-r
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), reg.get(insOp2.get()) - 4);
+          break;
+      }
 	  case 0x7: // not ............... 67-r
-            // TODO
-	    break;
+      {
+          reg.set(insOp2.get(), ~reg.get(insOp2.get()));
+          break;
+      }
 	  default:
 	    throw new InvalidInstructionException();
 	}
 	break;
       case 0x7: // sh? $i,rd ............. 7dii
-        // TODO
-        break;
+      {
+          byte data = (byte)insOp1.get();
+          data = (byte)(data << 4);
+          data = (byte)(data | insOp2.get());
+          if (data > 0) {
+              reg.set(insOp0.get(), reg.get(insOp0.get()) << data);
+          } else {
+              reg.set(insOp0.get(), reg.get(insOp0.get()) >> -data);
+          }
+          break;
+      }
       case 0xf: // halt or nop ............. f?--
 	if (insOp0.get() == 0)
 	  // halt .......................... f0--
